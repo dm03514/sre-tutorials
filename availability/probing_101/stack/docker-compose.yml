@@ -5,6 +5,7 @@ services:
     volumes:
      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
     command: "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus"
+    network_mode: "host"
     ports:
      - 9090:9090
     depends_on:
@@ -13,6 +14,7 @@ services:
 
   cloudprober:
     image: cloudprober/cloudprober
+    network_mode: "host"
     ports:
      - "9313:9313"
     volumes:
@@ -20,11 +22,13 @@ services:
 
   exporter:
     image: prom/node-exporter:latest
+    network_mode: "host"
     ports:
      - "9100:9100"
 
   grafana:
     image: grafana/grafana
+    network_mode: "host"
     ports:
      - "3000:3000"
     depends_on:

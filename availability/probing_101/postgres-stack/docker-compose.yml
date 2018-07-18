@@ -1,0 +1,19 @@
+version: "3"
+services:
+  cloudprober:
+    image: cloudprober/cloudprober
+    ports:
+     - "9313:9313"
+    volumes:
+      - ./config/cloudprober-singletarget.cfg:/etc/cloudprober.cfg
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:9.6
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    volumes:
+      - ./config:/docker-entrypoint-initdb.d
