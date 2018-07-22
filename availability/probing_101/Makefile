@@ -8,8 +8,8 @@ start-stack:
 
 start-postgres-stack:
 	# start postgres
-	docker stop postgres
-	docker container rm postgres
+	docker stop postgres || true
+	docker container rm postgres || true
 	docker run \
 		-p "5432:5432" \
 		-e POSTGRES_USER=root \
@@ -23,8 +23,8 @@ start-postgres-stack:
 	./postgres-stack/bin/wait-for-postgres.sh
 
 	# start cloudprober
-	docker stop cloudprober
-	docker container rm cloudprober
+	docker stop cloudprober || true
+	docker container rm cloudprober || true
 	docker run \
 		-p "9313:9313" \
 		-v "$(WD)/postgres-stack/config/cloudprober-singletarget.cfg:/etc/cloudprober.cfg" \

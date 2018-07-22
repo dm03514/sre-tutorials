@@ -62,6 +62,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`OK`))
 }
 
 type latencyHandler struct {
