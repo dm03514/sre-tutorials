@@ -9,13 +9,13 @@ stack:
 	docker-compose down && docker-compose up
 
 load-test:
-	echo "POST $(LOAD_TEST_TARGET)" | vegeta attack -body tests/fixtures/.json -rate=$(LOAD_TEST_RATE) -duration=0 | tee results.bin | vegeta report
+	echo "POST $(LOAD_TEST_TARGET)" | vegeta attack -body tests/fixtures/age_no_match.json -rate=$(LOAD_TEST_RATE) -duration=0 | tee results.bin | vegeta report
 
 ping-server:
 	curl \
 		-X POST \
 		-H "Content-Type: application/json" \
 		-d @tests/fixtures/age_no_match.json \
-		http://localhost:8080
+		http://localhost:8080 -v
 
 .PHONY: stack load-test fmt test-unit

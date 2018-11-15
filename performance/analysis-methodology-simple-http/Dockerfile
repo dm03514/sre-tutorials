@@ -1,2 +1,2 @@
-FROM golang:1.10-alpine
+FROM golang:1.10
 WORKDIR /go

@@ -2,11 +2,19 @@ version: "3"
 services:
   server:
     build: .
-    command: go run /go/src/github.com/dm03514/analysis-methodology-simple-http/cmd/server/main.go
+    image: golang:1.10
+    environment:
+      - WAIT_FOR_POSTGRES_CONNECTION_STRING=postgresql://postgres:root@postgres/people?sslmode=disable
+    command: bash -c "/tmp/wait-for postgres && go run /go/src/github.com/dm03514/analysis-methodology-simple-http/cmd/server/main.go -db-connection-string=postgresql://postgres:root@postgres/people?sslmode=disable"
+    # command: go run /go/src/github.com/dm03514/analysis-methodology-simple-http/cmd/server/main.go -db-connection-string=postgresql://root:root@postgres/people?sslmode=disable
     volumes:
+      - ./bin/amd64/wait-for:/tmp/wait-for
       - .:/go/src/github.com/dm03514/analysis-methodology-simple-http
     ports:
       - 8080:8080
+    working_dir: /go
+    depends_on:
+    - postgres
 
   prom:
     image: prom/prometheus:v2.1.0
@@ -25,9 +33,8 @@ services:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: root
-      POSTGRES_USER: root
     volumes:
-      - ./tests/bin/postgres:/docker-entrypoint-initdb.d
+      - ./config/postgres:/docker-entrypoint-initdb.d
 
   exporter:
     image: prom/node-exporter:latest

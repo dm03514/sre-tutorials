@@ -12,11 +12,12 @@
       }
     ]
   },
-  "description": "BcryptWorker",
+  "description": "HTTP Server",
   "editable": true,
   "gnetId": 240,
   "graphTooltip": 0,
-  "iteration": 1541100736675,
+  "id": 1,
+  "iteration": 1542313425167,
   "links": [],
   "panels": [
     {
@@ -27,12 +28,12 @@
       "datasource": "Prom",
       "fill": 1,
       "gridPos": {
-        "h": 9,
+        "h": 7,
         "w": 12,
         "x": 0,
         "y": 0
       },
-      "id": 23,
+      "id": 10,
       "legend": {
         "avg": false,
         "current": false,
@@ -56,17 +57,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(success[$interval]) / rate(total[$interval]) * 100",
+          "expr": "irate(http_request_seconds_count[$interval])",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "{{ probe }}",
           "refId": "A"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "SLO",
+      "title": "HTTP Requests Rate",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -168,7 +168,7 @@
           "refId": "D"
         },
         {
-          "expr": "0.1",
+          "expr": "0.060",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "E"
@@ -224,10 +224,10 @@
       "gridPos": {
         "h": 7,
         "w": 12,
-        "x": 12,
+        "x": 0,
         "y": 7
       },
-      "id": 17,
+      "id": 23,
       "legend": {
         "avg": false,
         "current": false,
@@ -251,38 +251,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(decrypter_match_time_seconds_bucket[$interval])) by (le))",
+          "expr": "find_by_age_results_count",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "p95",
           "refId": "A"
-        },
-        {
-          "expr": "histogram_quantile(0.99, sum(rate(decrypter_match_time_seconds_bucket[$interval])) by (le))",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "p99 ",
-          "refId": "B"
-        },
-        {
-          "expr": "histogram_quantile(0.50, sum(rate(decrypter_match_time_seconds_bucket[$interval])) by (le))",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "p50",
-          "refId": "C"
-        },
-        {
-          "expr": "histogram_quantile(1, sum(rate(decrypter_match_time_seconds_bucket[$interval])) by (le))",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "Max",
-          "refId": "D"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Decrypter Match Time",
+      "title": "Find By Age # Results Returned",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -329,10 +307,10 @@
       "gridPos": {
         "h": 7,
         "w": 12,
-        "x": 0,
-        "y": 9
+        "x": 12,
+        "y": 7
       },
-      "id": 10,
+      "id": 24,
       "legend": {
         "avg": false,
         "current": false,
@@ -356,16 +334,38 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(http_request_seconds_count[$interval])",
+          "expr": "histogram_quantile(0.95, sum(rate(find_by_age_seconds_bucket[$interval])) by (le))",
           "format": "time_series",
           "intervalFactor": 1,
+          "legendFormat": "p95",
           "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(find_by_age_seconds_bucket[$interval])) by (le))",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "p99",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(find_by_age_seconds_bucket[$interval])) by (le))",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "p50",
+          "refId": "C"
+        },
+        {
+          "expr": "histogram_quantile(1, sum(rate(find_by_age_seconds_bucket[$interval])) by (le))",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "Max",
+          "refId": "D"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "HTTP Requests Rate",
+      "title": "Find By Age Latency",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -382,6 +382,109 @@
       "yaxes": [
         {
           "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prom",
+      "editable": true,
+      "error": false,
+      "fill": 1,
+      "grid": {},
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "id": 1,
+      "isNew": true,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "connected",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "resident",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "process_resident_memory_bytes{job=\"$job\"}",
+          "intervalFactor": 2,
+          "legendFormat": "resident",
+          "metric": "process_resident_memory_bytes",
+          "refId": "A",
+          "step": 4
+        },
+        {
+          "expr": "process_virtual_memory_bytes{job=\"$job\"}",
+          "intervalFactor": 2,
+          "legendFormat": "virtual",
+          "metric": "process_virtual_memory_bytes",
+          "refId": "B",
+          "step": 4
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "process memory",
+      "tooltip": {
+        "msResolution": false,
+        "shared": true,
+        "sort": 0,
+        "value_type": "cumulative"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "bytes",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -492,14 +595,18 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "Prom",
+      "editable": true,
+      "error": false,
       "fill": 1,
+      "grid": {},
       "gridPos": {
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 21
       },
-      "id": 19,
+      "id": 2,
+      "isNew": true,
       "legend": {
         "avg": false,
         "current": false,
@@ -510,34 +617,66 @@
         "values": false
       },
       "lines": true,
-      "linewidth": 1,
+      "linewidth": 2,
       "links": [],
-      "nullPointMode": "null",
+      "nullPointMode": "connected",
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [
+        {
+          "alias": "alloc rate",
+          "yaxis": 2
+        }
+      ],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(decrypter_match_time_seconds_count[$interval])",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "ismatch={{ ismatch }}",
-          "refId": "A"
+          "expr": "go_memstats_alloc_bytes{job=\"$job\"}",
+          "intervalFactor": 2,
+          "legendFormat": "bytes allocated",
+          "metric": "go_memstats_alloc_bytes",
+          "refId": "A",
+          "step": 4
+        },
+        {
+          "expr": "rate(go_memstats_alloc_bytes_total{job=\"$job\"}[30s])",
+          "intervalFactor": 2,
+          "legendFormat": "alloc rate",
+          "metric": "go_memstats_alloc_bytes_total",
+          "refId": "B",
+          "step": 4
+        },
+        {
+          "expr": "go_memstats_stack_inuse_bytes{job=\"$job\"}",
+          "intervalFactor": 2,
+          "legendFormat": "stack inuse",
+          "metric": "go_memstats_stack_inuse_bytes",
+          "refId": "C",
+          "step": 4
+        },
+        {
+          "expr": "go_memstats_heap_inuse_bytes{job=\"$job\"}",
+          "hide": false,
+          "intervalFactor": 2,
+          "legendFormat": "heap inuse",
+          "metric": "go_memstats_heap_inuse_bytes",
+          "refId": "D",
+          "step": 4
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Decrypter Match Rate",
+      "title": "go memstats",
       "tooltip": {
+        "msResolution": false,
         "shared": true,
         "sort": 0,
-        "value_type": "individual"
+        "value_type": "cumulative"
       },
       "type": "graph",
       "xaxis": {
@@ -549,7 +688,7 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "format": "bytes",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -557,7 +696,7 @@
           "show": true
         },
         {
-          "format": "short",
+          "format": "Bps",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -742,14 +881,18 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "Prom",
+      "editable": true,
+      "error": false,
       "fill": 1,
+      "grid": {},
       "gridPos": {
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 23
+        "y": 28
       },
-      "id": 14,
+      "id": 3,
+      "isNew": true,
       "legend": {
         "avg": false,
         "current": false,
@@ -760,9 +903,9 @@
         "values": false
       },
       "lines": true,
-      "linewidth": 1,
+      "linewidth": 2,
       "links": [],
-      "nullPointMode": "null",
+      "nullPointMode": "connected",
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -773,20 +916,23 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "decrypter_pool_queued_operations_total",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "refId": "A"
+          "expr": "process_open_fds{job=\"$job\"}",
+          "intervalFactor": 2,
+          "legendFormat": "{{job}}",
+          "metric": "process_open_fds",
+          "refId": "A",
+          "step": 4
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Decrypter Pool Queue Size",
+      "title": "open fds",
       "tooltip": {
+        "msResolution": false,
         "shared": true,
         "sort": 0,
-        "value_type": "individual"
+        "value_type": "cumulative"
       },
       "type": "graph",
       "xaxis": {
@@ -936,9 +1082,9 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 35
       },
-      "id": 1,
+      "id": 7,
       "isNew": true,
       "legend": {
         "avg": false,
@@ -957,37 +1103,24 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "resident",
-          "yaxis": 2
-        }
-      ],
+      "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
       "targets": [
         {
-          "expr": "process_resident_memory_bytes{job=\"$job\"}",
+          "expr": "go_goroutines{job=\"$job\"}",
           "intervalFactor": 2,
-          "legendFormat": "resident",
-          "metric": "process_resident_memory_bytes",
+          "legendFormat": "{{job}}",
+          "metric": "go_goroutines",
           "refId": "A",
-          "step": 4
-        },
-        {
-          "expr": "process_virtual_memory_bytes{job=\"$job\"}",
-          "intervalFactor": 2,
-          "legendFormat": "virtual",
-          "metric": "process_virtual_memory_bytes",
-          "refId": "B",
           "step": 4
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "process memory",
+      "title": "Goroutines",
       "tooltip": {
         "msResolution": false,
         "shared": true,
@@ -1004,7 +1137,7 @@
       },
       "yaxes": [
         {
-          "format": "bytes",
+          "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -1158,126 +1291,6 @@
       "gridPos": {
         "h": 7,
         "w": 12,
-        "x": 0,
-        "y": 37
-      },
-      "id": 2,
-      "isNew": true,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 2,
-      "links": [],
-      "nullPointMode": "connected",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "alloc rate",
-          "yaxis": 2
-        }
-      ],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "go_memstats_alloc_bytes{job=\"$job\"}",
-          "intervalFactor": 2,
-          "legendFormat": "bytes allocated",
-          "metric": "go_memstats_alloc_bytes",
-          "refId": "A",
-          "step": 4
-        },
-        {
-          "expr": "rate(go_memstats_alloc_bytes_total{job=\"$job\"}[30s])",
-          "intervalFactor": 2,
-          "legendFormat": "alloc rate",
-          "metric": "go_memstats_alloc_bytes_total",
-          "refId": "B",
-          "step": 4
-        },
-        {
-          "expr": "go_memstats_stack_inuse_bytes{job=\"$job\"}",
-          "intervalFactor": 2,
-          "legendFormat": "stack inuse",
-          "metric": "go_memstats_stack_inuse_bytes",
-          "refId": "C",
-          "step": 4
-        },
-        {
-          "expr": "go_memstats_heap_inuse_bytes{job=\"$job\"}",
-          "hide": false,
-          "intervalFactor": 2,
-          "legendFormat": "heap inuse",
-          "metric": "go_memstats_heap_inuse_bytes",
-          "refId": "D",
-          "step": 4
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "go memstats",
-      "tooltip": {
-        "msResolution": false,
-        "shared": true,
-        "sort": 0,
-        "value_type": "cumulative"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "bytes",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "Bps",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prom",
-      "editable": true,
-      "error": false,
-      "fill": 1,
-      "grid": {},
-      "gridPos": {
-        "h": 7,
-        "w": 12,
         "x": 12,
         "y": 42
       },
@@ -1317,96 +1330,6 @@
       "timeFrom": null,
       "timeShift": null,
       "title": "open fds deriv",
-      "tooltip": {
-        "msResolution": false,
-        "shared": true,
-        "sort": 0,
-        "value_type": "cumulative"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prom",
-      "editable": true,
-      "error": false,
-      "fill": 1,
-      "grid": {},
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 44
-      },
-      "id": 3,
-      "isNew": true,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 2,
-      "links": [],
-      "nullPointMode": "connected",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "process_open_fds{job=\"$job\"}",
-          "intervalFactor": 2,
-          "legendFormat": "{{job}}",
-          "metric": "process_open_fds",
-          "refId": "A",
-          "step": 4
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "open fds",
       "tooltip": {
         "msResolution": false,
         "shared": true,
@@ -1533,96 +1456,6 @@
         "align": false,
         "alignLevel": null
       }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prom",
-      "editable": true,
-      "error": false,
-      "fill": 1,
-      "grid": {},
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 51
-      },
-      "id": 7,
-      "isNew": true,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 2,
-      "links": [],
-      "nullPointMode": "connected",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "go_goroutines{job=\"$job\"}",
-          "intervalFactor": 2,
-          "legendFormat": "{{job}}",
-          "metric": "go_goroutines",
-          "refId": "A",
-          "step": 4
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Goroutines",
-      "tooltip": {
-        "msResolution": false,
-        "shared": true,
-        "sort": 0,
-        "value_type": "cumulative"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
     }
   ],
   "refresh": "5s",
@@ -1634,8 +1467,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "bcryptworker",
-          "value": "bcryptworker"
+          "text": "node",
+          "value": "node"
         },
         "datasource": "Prom",
         "hide": 0,
@@ -1647,6 +1480,7 @@
         "query": "label_values(job)",
         "refresh": 1,
         "regex": "",
+        "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
@@ -1697,6 +1531,7 @@
         ],
         "query": "1m,5m,10m,30m,1h",
         "refresh": 2,
+        "skipUrlSync": false,
         "type": "interval"
       }
     ]
@@ -1731,7 +1566,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "BcryptWorker",
+  "title": "HTTP Server",
   "uid": "yvumWBFmk",
   "version": 1
 }
