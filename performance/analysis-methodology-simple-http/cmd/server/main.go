@@ -14,21 +14,28 @@ import (
 	_ "github.com/lib/pq"
 )
 
+func errToStatus(err error) string {
+	if err != nil {
+		return "error"
+	}
+	return "success"
+}
+
 var (
 	requestLatency = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Name: "http_request_seconds",
 		Help: "Distribution of request lengths",
 	}, []string{"path"})
 
-	findByAgeLatency = prometheus.NewHistogram(prometheus.HistogramOpts{
+	findByAgeLatency = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Name: "find_by_age_seconds",
-		Help: "Distribution of find by age durations",
-	})
+		Help: "Distribution of find by age durations, status=success|error",
+	}, []string{"status"})
 
-	findByAgeResultCount = prometheus.NewGauge(prometheus.GaugeOpts{
+	findByAgeResultCount = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "find_by_age_results_count",
 		Help: "# of results returned from find by age",
-	})
+	}, []string{"status"})
 )
 
 func init() {
@@ -78,7 +85,17 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	findStart := time.Now()
 	people, err := h.Postgres.FindByAge(payload.Age)
+
+	findByAgeLatency.WithLabelValues(
+		errToStatus(err),
+	).Observe(
+		time.Since(findStart).Seconds(),
+	)
+
+	findByAgeResultCount.WithLabelValues(errToStatus(err)).Set(float64(len(people)))
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -93,15 +110,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 
 func (p *Postgres) FindByAge(age int) ([]Person, error) {
-	start := time.Now()
 	people := []Person{}
 
-	defer func() {
-		diff := time.Since(start)
-		findByAgeLatency.Observe(diff.Seconds())
-	}()
-
-	q := `SELECT address, full_name, age FROM people WHERE age = ?`
+	q := `SELECT address, full_name, age FROM people WHERE age = $1`
 
 	rows, err := p.db.Query(q, age)
 	if err != nil {
@@ -121,8 +132,6 @@ func (p *Postgres) FindByAge(age int) ([]Person, error) {
 	if err := rows.Err(); err != nil {
 		return people, err
 	}
-
-	findByAgeResultCount.Set(float64(len(people)))
 
 	return people, nil
 }

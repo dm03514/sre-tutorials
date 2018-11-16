@@ -16,8 +16,7 @@
   "editable": true,
   "gnetId": 240,
   "graphTooltip": 0,
-  "id": 1,
-  "iteration": 1542313425167,
+  "iteration": 1542328739568,
   "links": [],
   "panels": [
     {
@@ -793,7 +792,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_memory_MemTotal_bytes{instance=\"localhost:9100\",job=\"node\"}",
+          "expr": "node_memory_MemTotal_bytes{instance=\"exporter:9100\",job=\"node\"}",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 2,
@@ -802,7 +801,7 @@
           "step": 240
         },
         {
-          "expr": "node_memory_MemTotal_bytes{instance=\"localhost:9100\",job=\"node\"} - node_memory_MemFree_bytes{instance=\"localhost:9100\",job=\"node\"} - (node_memory_Cached_bytes{instance=\"localhost:9100\",job=\"node\"} + node_memory_Buffers_bytes{instance=\"localhost:9100\",job=\"node\"})",
+          "expr": "node_memory_MemTotal_bytes{instance=\"exporter:9100\",job=\"node\"} - node_memory_MemFree_bytes{instance=\"exporter:9100\",job=\"node\"} - (node_memory_Cached_bytes{instance=\"exporter:9100\",job=\"node\"} + node_memory_Buffers_bytes{instance=\"exporter:9100\",job=\"node\"})",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 2,
@@ -811,7 +810,7 @@
           "step": 240
         },
         {
-          "expr": "node_memory_Cached_bytes{instance=\"localhost:9100\",job=\"node\"} + node_memory_Buffers_bytes{instance=\"localhost:9100\",job=\"node\"}",
+          "expr": "node_memory_Cached_bytes{instance=\"exporter:9100\",job=\"node\"} + node_memory_Buffers_bytes{instance=\"exporter:9100\",job=\"node\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "RAM Cache + Buffer",
@@ -819,7 +818,7 @@
           "step": 240
         },
         {
-          "expr": "node_memory_MemFree_bytes{instance=\"localhost:9100\",job=\"node\"}",
+          "expr": "node_memory_MemFree_bytes{instance=\"exporter:9100\",job=\"node\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "RAM Free",
@@ -827,7 +826,7 @@
           "step": 240
         },
         {
-          "expr": "(node_memory_SwapTotal_bytes{instance=\"localhost:9100\",job=\"node\"} - node_memory_SwapFree_bytes{instance=\"localhost:9100\",job=\"node\"})",
+          "expr": "(node_memory_SwapTotal_bytes{instance=\"exporter:9100\",job=\"node\"} - node_memory_SwapFree_bytes{instance=\"exporter:9100\",job=\"node\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "SWAP Used",
@@ -1458,7 +1457,7 @@
       }
     }
   ],
-  "refresh": "5s",
+  "refresh": false,
   "schemaVersion": 16,
   "style": "dark",
   "tags": [],
@@ -1467,8 +1466,9 @@
       {
         "allValue": null,
         "current": {
-          "text": "node",
-          "value": "node"
+          "selected": false,
+          "text": "server",
+          "value": "server"
         },
         "datasource": "Prom",
         "hide": 0,
