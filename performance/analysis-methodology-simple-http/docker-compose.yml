@@ -1,0 +1,57 @@
+version: "3"
+services:
+  server:
+    build: .
+    image: golang:1.10
+    environment:
+      - WAIT_FOR_POSTGRES_CONNECTION_STRING=postgresql://postgres:root@postgres/people?sslmode=disable
+    command: bash -c "/tmp/wait-for postgres && go run /go/src/github.com/dm03514/analysis-methodology-simple-http/cmd/server/main.go -db-connection-string=postgresql://postgres:root@postgres/people?sslmode=disable"
+    # command: go run /go/src/github.com/dm03514/analysis-methodology-simple-http/cmd/server/main.go -db-connection-string=postgresql://root:root@postgres/people?sslmode=disable
+    volumes:
+      - ./bin/amd64/wait-for:/tmp/wait-for
+      - .:/go/src/github.com/dm03514/analysis-methodology-simple-http
+    ports:
+      - 8080:8080
+    working_dir: /go
+    depends_on:
+    - postgres
+
+  prom:
+    image: prom/prometheus:v2.1.0
+    volumes:
+     - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    command: "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus"
+    # network_mode: host
+    ports:
+     - 9090:9090
+    depends_on:
+     - exporter
+
+  postgres:
+    image: postgres:9.6
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: root
+    volumes:
+      - ./config/postgres:/docker-entrypoint-initdb.d
+
+  exporter:
+    image: prom/node-exporter:latest
+    ports:
+     - 9100:9100
+
+  grafana:
+    image: grafana/grafana
+    environment:
+      - GF_USERS_DEFAULT_THEME=light
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Editor
+    volumes:
+      - ./config/grafana_prometheus_datasource.yml:/etc/grafana/provisioning/datasources/prometheus.yml
+      - ./config/dashboards/service.json:/var/lib/grafana/dashboards/service.json
+      - ./config/dashboards.yml:/etc/grafana/provisioning/dashboards/all.yml
+    ports:
+     - 3000:3000
+    depends_on:
+      - prom
