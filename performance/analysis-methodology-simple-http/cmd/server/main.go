@@ -6,6 +6,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"html"
 	"net/http"
+	"net/http/pprof"
 	"time"
 	"log"
 	"database/sql"
@@ -139,6 +140,8 @@ func (p *Postgres) FindByAge(age int) ([]Person, error) {
 
 func NewPostges(dbConnectionString string) (*Postgres, error) {
 	db, err := sql.Open("postgres", dbConnectionString)
+	// db.SetMaxOpenConns(8)
+	// db.SetMaxIdleConns(8)
 
 	if err != nil {
 		return nil, err
@@ -151,6 +154,19 @@ func NewPostges(dbConnectionString string) (*Postgres, error) {
 	return &Postgres{
 		db: db,
 	}, nil
+}
+
+func AttachProfiler(router *http.ServeMux) {
+	router.HandleFunc("/debug/pprof/", pprof.Index)
+	router.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	router.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	router.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+
+	// Manually add support for paths linked to by index page at /debug/pprof/
+	router.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine"))
+	router.Handle("/debug/pprof/heap", pprof.Handler("heap"))
+	router.Handle("/debug/pprof/threadcreate", pprof.Handler("threadcreate"))
+	router.Handle("/debug/pprof/block", pprof.Handler("block"))
 }
 
 func main() {
@@ -168,13 +184,14 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
+	AttachProfiler(mux)
 	mux.Handle("/", h)
 
 	s := &http.Server{
 		Addr:           ":8080",
 		Handler:        mux,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
+		ReadTimeout:    30 * time.Second,
+		WriteTimeout:   30 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 	fmt.Printf("starting_server: %q\n", s.Addr)
