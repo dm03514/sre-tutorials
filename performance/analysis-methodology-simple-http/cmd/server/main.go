@@ -1,18 +1,18 @@
 package main
 
 import (
+	"database/sql"
+	"encoding/json"
 	"flag"
 	"fmt"
+	_ "github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"html"
+	"log"
 	"net/http"
 	"net/http/pprof"
 	"time"
-	"log"
-	"database/sql"
-	"encoding/json"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	_ "github.com/lib/pq"
 )
 
 func errToStatus(err error) string {
@@ -54,9 +54,9 @@ type PeopleResponse struct {
 }
 
 type Person struct {
-	Address string
+	Address  string
 	FullName string
-	Age int
+	Age      int
 }
 
 type Payload struct {
@@ -109,7 +109,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&resp)
 }
 
-
 func (p *Postgres) FindByAge(age int) ([]Person, error) {
 	people := []Person{}
 
@@ -136,7 +135,6 @@ func (p *Postgres) FindByAge(age int) ([]Person, error) {
 
 	return people, nil
 }
-
 
 func NewPostges(dbConnectionString string) (*Postgres, error) {
 	db, err := sql.Open("postgres", dbConnectionString)
