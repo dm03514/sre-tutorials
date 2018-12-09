@@ -1,0 +1,47 @@
+version: "3"
+services:
+  service:
+    build: .
+    command: go run /go/src/github.com/dm03514/bcrypt-worker/cmd/worker/main.go -num-decrypt-pool-workers ${WORKER_NUM_DECRYPTERS}
+    volumes:
+      - .:/go/src/github.com/dm03514/bcrypt-worker
+    ports:
+      - 11111:8080
+      -
+  service:
+    build: .
+    command: go run /go/src/github.com/dm03514/bcrypt-worker/cmd/dep1http/main.go
+    volumes:
+      - .:/go/src/github.com/dm03514/bcrypt-worker
+    ports:
+      - 11112:8080
+
+  prom:
+    image: prom/prometheus:v2.1.0
+    volumes:
+     - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    command: "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus"
+    ports:
+     - 9090:9090
+    depends_on:
+     - exporter
+
+  exporter:
+    image: prom/node-exporter:latest
+    expose:
+      - 9100
+
+  grafana:
+    image: grafana/grafana
+    environment:
+      - GF_USERS_DEFAULT_THEME=light
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Editor
+    volumes:
+      - ./config/grafana/datasources/:/etc/grafana/provisioning/datasources/
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./config/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/all.yml
+    ports:
+     - 3000:3000
+    depends_on:
+      - prom
