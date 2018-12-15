@@ -1,6 +1,6 @@
 LOAD_TEST_RATE=50
-LOAD_TEST_TARGET=http://localhost:8080
-WORKER_NUM_DECRYPTERS:=4
+LOAD_TEST_TARGET=http://localhost:11111
+WORKER_NUM_DECRYPTERS=4
 PKGS = $(shell go list ./... | grep -v /vendor/)
 
 fmt:
@@ -21,6 +21,6 @@ ping-server:
 		-X POST \
 		-H "Content-Type: application/json" \
 		-d @tests/fixtures/password_no_match.json \
-		http://localhost:8080/decrypt
+		$(LOAD_TEST_TARGET)/decrypt
 
 .PHONY: stack load-test fmt test-unit

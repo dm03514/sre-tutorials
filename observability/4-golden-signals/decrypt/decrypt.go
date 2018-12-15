@@ -3,19 +3,17 @@ package decrypt
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/crypto/bcrypt"
-	"strconv"
-	"time"
 )
 
 var (
-	decryptionTimeSeconds = prometheus.NewHistogramVec(prometheus.HistogramOpts{
-		Name: "decrypter_match_time_seconds",
-		Help: "How long decryption takes",
-	}, []string{"ismatch"})
+	requestsTotal = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "decrypter_worker_requests_total",
+		Help: "Total # of requests made to a bcrypt worker",
+	})
 )
 
 func init() {
-	prometheus.MustRegister(decryptionTimeSeconds)
+	prometheus.MustRegister(requestsTotal)
 }
 
 type Bcrypter struct {
@@ -24,9 +22,7 @@ type Bcrypter struct {
 }
 
 func (b Bcrypter) IsMatch() bool {
-	start := time.Now()
-	diff := time.Since(start)
+	requestsTotal.Inc()
 	result := bcrypt.CompareHashAndPassword([]byte(b.HashedPassword), []byte(b.Password)) == nil
-	decryptionTimeSeconds.WithLabelValues(strconv.FormatBool(result)).Observe(diff.Seconds())
 	return result
 }

@@ -5,14 +5,16 @@ import (
 )
 
 var (
-	decrypterPoolQueued = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "decrypter_pool_queued_operations_total",
-		Help: "How many operations are pending for the pool",
+	poolRequestsTotal = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "decrypter_pool_requests_total",
+		Help: "Total number of requests made ot the pool",
 	})
 )
 
 func init() {
-	prometheus.MustRegister(decrypterPoolQueued)
+	prometheus.MustRegister(
+		poolRequestsTotal,
+	)
 }
 
 // Pool handles scheduling decryption to respect hard bounds such as Number of CPU
@@ -23,13 +25,14 @@ type Pool struct {
 }
 
 func (p *Pool) IsMatch(b Bcrypter) bool {
+	poolRequestsTotal.Inc()
+
 	work := workerRequest{
 		bcrypter:   b,
 		outputChan: make(chan bool),
 	}
-	decrypterPoolQueued.Inc()
+
 	p.inputChan <- work
-	decrypterPoolQueued.Dec()
 
 	return <-work.outputChan
 }

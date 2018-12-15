@@ -2,19 +2,19 @@ version: "3"
 services:
   service:
     build: .
-    command: go run /go/src/github.com/dm03514/bcrypt-worker/cmd/worker/main.go -num-decrypt-pool-workers ${WORKER_NUM_DECRYPTERS}
+    command: go run /go/src/github.com/dm03514/sre-tutorials/observability/4-golden-signals/cmd/worker/main.go -num-decrypt-pool-workers ${WORKER_NUM_DECRYPTERS}
     volumes:
-      - .:/go/src/github.com/dm03514/bcrypt-worker
+      - .:/go/src/github.com/dm03514/sre-tutorials/observability/4-golden-signals
     ports:
       - 11111:8080
-      -
-  service:
+
+  dep1http:
     build: .
-    command: go run /go/src/github.com/dm03514/bcrypt-worker/cmd/dep1http/main.go
+    command: go run /go/src/github.com/dm03514/sre-tutorials/observability/4-golden-signals/cmd/dep1http/main.go
     volumes:
-      - .:/go/src/github.com/dm03514/bcrypt-worker
-    ports:
-      - 11112:8080
+      - .:/go/src/github.com/dm03514/sre-tutorials/observability/4-golden-signals
+    expose:
+      - 8080
 
   prom:
     image: prom/prometheus:v2.1.0

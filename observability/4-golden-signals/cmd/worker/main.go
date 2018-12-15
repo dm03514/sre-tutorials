@@ -7,21 +7,49 @@ import (
 	"github.com/dm03514/sre-tutorials/observability/4-golden-signals/decrypt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"html"
 	"log"
 	"net/http"
-	"time"
 )
 
 var (
-	requestLatency = prometheus.NewHistogramVec(prometheus.HistogramOpts{
-		Name: "http_request_seconds",
-		Help: "Distribution of request lengths",
-	}, []string{"path"})
+	requestsTotal = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "http_requests_total",
+		Help: "Total number of requests received from external clients",
+	})
+	responsesTotal = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "http_responses_total",
+		Help: "Total number of responses returned to the client",
+	})
+	externDep1ServiceRequestsTotal = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "extern_dep1_service_requests_total",
+		Help: "Total number of requests made to extern Dep1 Service",
+	})
 )
 
 func init() {
-	prometheus.MustRegister(requestLatency)
+	prometheus.MustRegister(
+		requestsTotal,
+		responsesTotal,
+		externDep1ServiceRequestsTotal,
+	)
+}
+
+func makeDep1Req() error {
+	externDep1ServiceRequestsTotal.Inc()
+	depResp, err := http.Get("http://dep1http:8080/pong")
+	if err != nil {
+		return err
+	}
+
+	depResp.Body.Close()
+	// do something with response
+	return nil
+}
+
+// returns true if the configuration file exists
+func configExist() bool {
+	// emulate reading to FS
+	return true
 }
 
 type Handler struct {
@@ -29,13 +57,8 @@ type Handler struct {
 }
 
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	start := time.Now()
-
-	defer func() {
-		diff := time.Since(start)
-		// fmt.Fprintf(w, "Took: %s\n", diff)
-		requestLatency.WithLabelValues(html.EscapeString(r.URL.Path)).Observe(diff.Seconds())
-	}()
+	requestsTotal.Inc()
+	defer responsesTotal.Inc()
 
 	var payload decrypt.Bcrypter
 	err := json.NewDecoder(r.Body).Decode(&payload)
@@ -46,7 +69,14 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer r.Body.Close()
+	r.Body.Close()
+
+	configExist()
+
+	if err := makeDep1Req(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	match := h.DecrypterPool.IsMatch(payload)
 	resp := decrypt.HTTPResponse{
