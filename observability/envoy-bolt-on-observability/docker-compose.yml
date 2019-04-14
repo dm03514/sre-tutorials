@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  envoy:
+    image: envoyproxy/envoy
+    network_mode: host
+    volumes:
+      - ./config/envoy.yaml:/tmp/envoy.yaml
+    ports:
+      - 10000:10000
+      - 9901:9901
+    command: envoy -c /tmp/envoy.yaml
